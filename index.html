@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Janken Battle</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="box-sizing: border-box">
+    <main
+      id="app"
+      style="
+        height: 95vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+      "
+    >
+      <section>
+        {{player.name}}<br />
+        {{player.hp}} / {{player.mhp}}
+      </section>
+      <div>
+        {{msg}}
+        <div v-if="phase == 'COMMAND'" style="display: flex">
+          <button @click="choki">武器攻撃</button>
+          <button @click="goo">弓矢攻撃</button>
+          <button @click="paa">魔法攻撃</button>
+        </div>
+        <div v-if="phase == 'CALC'" style="display: flex">
+          <button @click="phase = 'COMMAND'">継戦！</button>
+        </div>
+      </div>
+      <section>
+        {{enemy.name}}<br />
+
+        {{enemy.hp}} / {{enemy.mhp}}
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          player: {
+            name: "勇者",
+            hp: 100,
+            mhp: 100,
+            str: 50,
+            dex: 50,
+            int: 50,
+          },
+          enemy: {
+            name: "ウルフ",
+            hp: 100,
+            mhp: 100,
+            str: 33,
+            dex: 33,
+            int: 33,
+          },
+          phase: "INIT",
+          msg: "",
+          command: 0,
+        },
+        mounted() {
+          this.phase = "COMMAND";
+          this.msg = `${this.enemy.name}が現れた！`;
+        },
+        methods: {
+          paa() {
+            this.command = 0;
+            this.msg = "魔法攻撃！";
+            this.calc();
+            this.phase = "CALC";
+          },
+          choki() {
+            this.command = 2;
+            this.msg = "武器攻撃！";
+            this.calc();
+            this.phase = "CALC";
+          },
+          goo() {
+            this.command = 1;
+            this.msg = "弓矢攻撃！";
+            this.calc();
+            this.phase = "CALC";
+          },
+          calc() {
+            const eneCommand = Math.floor(Math.random() * 3);
+
+            var result = "";
+            var myStatus = 0;
+            var eneStatus = 0;
+
+            switch (this.command) {
+              case 1:
+                myStatus = this.player.dex;
+                switch (eneCommand) {
+                  case 1:
+                    eneStatus = this.enemy.dex;
+                    result = "EQ";
+                    break;
+                  case 2:
+                    eneStatus = this.enemy.str;
+                    result = "WIN";
+                    break;
+                  case 0:
+                    eneStatus = this.enemy.int;
+                    result = "LOSE";
+                    break;
+                }
+                break;
+              case 2:
+                myStatus = this.player.str;
+
+                switch (eneCommand) {
+                  case 1:
+                    result = "LOSE";
+                    eneStatus = this.enemy.dex;
+                    break;
+                  case 2:
+                    result = "EQ";
+                    eneStatus = this.enemy.str;
+                    break;
+                  case 0:
+                    result = "WIN";
+                    eneStatus = this.enemy.int;
+                    break;
+                }
+                break;
+              case 0:
+                myStatus = this.player.int;
+
+                switch (eneCommand) {
+                  case 1:
+                    result = "WIN";
+                    eneStatus = this.enemy.dex;
+                    break;
+                  case 2:
+                    result = "LOSE";
+                    eneStatus = this.enemy.str;
+                    break;
+                  case 0:
+                    result = "EQ";
+                    eneStatus = this.enemy.int;
+                    break;
+                }
+            }
+            this.msg = result;
+            if (result == "WIN") {
+              const mycalc = Math.max(myStatus - eneStatus, 1);
+              this.enemy.hp -= mycalc;
+              console.log(mycalc);
+            }
+            if (result == "LOSE") {
+              const mycalc = Math.max(eneStatus - myStatus, 1);
+              this.player.hp -= mycalc;
+              console.log(mycalc);
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
